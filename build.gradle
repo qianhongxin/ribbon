@@ -15,17 +15,26 @@ subprojects {
     group = "com.netflix.${githubProjectName}" // TEMPLATE: Set to organization of project
 
     repositories {
+        maven{ url"http://maven.aliyun.com/nexus/content/groups/public"}
         jcenter()
     }
 
     if (project.hasProperty('useMavenLocal')) {
         repositories {
+            maven{ url"http://maven.aliyun.com/nexus/content/groups/public"}
             mavenLocal()
         }
     }
     if (project.getProperty('status').equals("snapshot")) {
         repositories {
+            maven{ url"http://maven.aliyun.com/nexus/content/groups/public"}
             maven { url 'http://oss.jfrog.org/oss-snapshot-local' }
         }
+    }
+
+    test {
+        systemProperties = System.properties
+
+        systemProperties['jna.boot.library.path'] = null
     }
 }
