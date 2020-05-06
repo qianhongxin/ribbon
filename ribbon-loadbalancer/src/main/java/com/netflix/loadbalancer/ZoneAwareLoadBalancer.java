@@ -126,13 +126,17 @@ public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLo
                 triggeringBlackoutPercentage = DynamicPropertyFactory.getInstance().getDoubleProperty(
                         "ZoneAwareNIWSDiscoveryLoadBalancer." + this.getName() + ".avoidZoneWithBlackoutPercetage", 0.99999d);
             }
+            // 拿到可用机房集合
             Set<String> availableZones = ZoneAvoidanceRule.getAvailableZones(zoneSnapshot, triggeringLoad.get(), triggeringBlackoutPercentage.get());
             logger.debug("Available zones: {}", availableZones);
             if (availableZones != null &&  availableZones.size() < zoneSnapshot.keySet().size()) {
+                // 随机选择一个机房
                 String zone = ZoneAvoidanceRule.randomChooseZone(zoneSnapshot, availableZones);
                 logger.debug("Zone chosen: {}", zone);
                 if (zone != null) {
+                    // 获取机房zone的BaseLoadBalancer
                     BaseLoadBalancer zoneLoadBalancer = getLoadBalancer(zone);
+                    // 选择一个server
                     server = zoneLoadBalancer.chooseServer(key);
                 }
             }
@@ -150,11 +154,15 @@ public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLo
     @VisibleForTesting
     BaseLoadBalancer getLoadBalancer(String zone) {
         zone = zone.toLowerCase();
+        // 选择一个loadBalancer
         BaseLoadBalancer loadBalancer = balancers.get(zone);
         if (loadBalancer == null) {
         	// We need to create rule object for load balancer for each zone
-        	IRule rule = cloneRule(this.getRule());
+        	// 创建rule
+            IRule rule = cloneRule(this.getRule());
+            // 创建一个BaseLoadBalancer
             loadBalancer = new BaseLoadBalancer(this.getName() + "_" + zone, rule, this.getLoadBalancerStats());
+            // 放入balancers
             BaseLoadBalancer prev = balancers.putIfAbsent(zone, loadBalancer);
             if (prev != null) {
             	loadBalancer = prev;

@@ -743,6 +743,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
      * 
      * @return the dedicated server
      */
+    // 根据key选择一个server。直接利用rule来选择一个server
     public Server chooseServer(Object key) {
         if (counter == null) {
             counter = createCounter();
@@ -752,6 +753,8 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
             return null;
         } else {
             try {
+                // sc中默认创建的是ZoneAvoidanceRule.
+                // 实际用的是父类PredicateBasedRule的choose方法
                 return rule.choose(key);
             } catch (Exception e) {
                 logger.warn("LoadBalancer [{}]:  Error choosing server for key {}", name, key, e);

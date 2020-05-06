@@ -145,6 +145,7 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
      * @param modulo The modulo to bound the value of the counter.
      * @return The next value.
      */
+    // 取模
     private int incrementAndGetModulo(int modulo) {
         for (;;) {
             int current = nextIndex.get();
@@ -196,10 +197,12 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
      * Choose a server in a round robin fashion after the predicate filters a given list of servers and load balancer key. 
      */
     public Optional<Server> chooseRoundRobinAfterFiltering(List<Server> servers, Object loadBalancerKey) {
+        // 过滤servers
         List<Server> eligible = getEligibleServers(servers, loadBalancerKey);
         if (eligible.size() == 0) {
             return Optional.absent();
         }
+        // 从eligible中根据取模来定位一个server。而且是轮询的依次访问eligible中的server，利用来AtomicInteger来
         return Optional.of(eligible.get(incrementAndGetModulo(eligible.size())));
     }
         
