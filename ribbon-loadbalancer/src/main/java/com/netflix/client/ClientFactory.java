@@ -197,6 +197,7 @@ public class ClientFactory {
      * @param clientConfig IClientConfig object used for initialization.
      */
     @SuppressWarnings("unchecked")
+    // 从配置文件中加载并配置刷新ribbon的servers列表的来源。比如从erueka中拉取servers的DiscoveryEnabledNIWSServerList.java
 	public static Object instantiateInstanceWithClientConfig(String className, IClientConfig clientConfig) 
     		throws InstantiationException, IllegalAccessException, ClassNotFoundException {
     	Class clazz = Class.forName(className);

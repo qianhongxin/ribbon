@@ -121,6 +121,7 @@ public class PollingServerListUpdater implements ServerListUpdater {
                 }
             };
 
+            // 定时刷新， 每隔30s定时更新一次ribbon中的servers
             scheduledFuture = getRefreshExecutor().scheduleWithFixedDelay(
                     wrapperRunnable,
                     initialDelayMs,
