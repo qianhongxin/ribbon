@@ -748,6 +748,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         if (counter == null) {
             counter = createCounter();
         }
+        // 增加调用次数计数
         counter.increment();
         if (rule == null) {
             return null;

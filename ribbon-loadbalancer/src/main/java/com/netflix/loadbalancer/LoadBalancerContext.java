@@ -478,6 +478,7 @@ public class LoadBalancerContext implements IClientConfigAware {
             // Partial URI or no URI Case
             // well we have to just get the right instances from lb - or we fall back
             if (lb != null){
+                // 根据负载算法选择一个目标服务器
                 Server svc = lb.chooseServer(loadBalancerKey);
                 if (svc == null){
                     throw new ClientException(ClientException.ErrorType.GENERAL,
@@ -541,6 +542,7 @@ public class LoadBalancerContext implements IClientConfigAware {
                 shouldInterpretAsVip = isVipRecognized(original.getAuthority());
             }
             if (shouldInterpretAsVip) {
+                // 根据负载算法选择一个目标服务器
                 Server svc = lb.chooseServer(loadBalancerKey);
                 if (svc != null){
                     host = svc.getHost();

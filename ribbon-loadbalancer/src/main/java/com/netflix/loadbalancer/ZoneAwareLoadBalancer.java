@@ -50,6 +50,7 @@ For each request, the steps above will be repeated. That is to say, each zone re
  *
  * @param <T>
  */
+// 支持机房级别的负载均衡器
 public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLoadBalancer<T> {
 
     private ConcurrentHashMap<String, BaseLoadBalancer> balancers = new ConcurrentHashMap<String, BaseLoadBalancer>();

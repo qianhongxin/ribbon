@@ -57,7 +57,9 @@ public class RandomRule extends AbstractLoadBalancerRule {
                 return null;
             }
 
+            // 从所有的server中随机定位
             int index = chooseRandomInt(serverCount);
+            // 从存活的server中选择
             server = upList.get(index);
 
             if (server == null) {

@@ -76,7 +76,8 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
         } 
         return false;
     }
-    
+
+    // 负载均衡调用
     public T executeWithLoadBalancer(S request) throws ClientException {
         return executeWithLoadBalancer(request, null);
     }
@@ -90,6 +91,7 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
      * @param request request to be dispatched to a server chosen by the load balancer. The URI can be a partial
      * URI which does not contain the host name or the protocol.
      */
+    // 负载均衡调用
     public T executeWithLoadBalancer(final S request, final IClientConfig requestConfig) throws ClientException {
         LoadBalancerCommand<T> command = buildLoadBalancerCommand(request, requestConfig);
 

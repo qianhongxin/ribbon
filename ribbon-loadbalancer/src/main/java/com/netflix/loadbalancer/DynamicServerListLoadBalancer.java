@@ -150,7 +150,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
         LOGGER.info("DynamicServerListLoadBalancer for client {} initialized: {}", clientConfig.getClientName(), this.toString());
     }
     
-    
+    // 设置服务器列表
     @Override
     public void setServersList(List lsrv) {
         super.setServersList(lsrv);
@@ -233,6 +233,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
         }
     }
 
+    // 更新服务器列表
     @VisibleForTesting
     public void updateListOfServers() {
         List<T> servers = new ArrayList<T>();

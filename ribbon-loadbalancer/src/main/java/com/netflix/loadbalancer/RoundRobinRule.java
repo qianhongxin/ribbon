@@ -31,6 +31,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Nikos Michalakis <nikos@netflix.com>
  *
  */
+// 系统内置的默认负载均衡规范，直接round robin轮询，从一堆server list中，
+// 不断的轮询选择出来一个server，每个server平摊到的这个请求，基本上是平均的
 public class RoundRobinRule extends AbstractLoadBalancerRule {
 
     private AtomicInteger nextServerCyclicCounter;
@@ -57,9 +59,13 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
         Server server = null;
         int count = 0;
         while (server == null && count++ < 10) {
+            // 处于Up状态的server
             List<Server> reachableServers = lb.getReachableServers();
+            // 所有的server
             List<Server> allServers = lb.getAllServers();
+            // 处于Up状态的server统计
             int upCount = reachableServers.size();
+            // 所有的server统计
             int serverCount = allServers.size();
 
             if ((upCount == 0) || (serverCount == 0)) {
@@ -78,6 +84,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
                 continue;
             }
 
+            // 判断server是否可用
             if (server.isAlive() && (server.isReadyToServe())) {
                 return (server);
             }

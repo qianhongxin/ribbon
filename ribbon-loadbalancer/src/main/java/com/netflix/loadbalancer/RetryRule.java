@@ -26,6 +26,7 @@ import com.netflix.client.config.IClientConfig;
  * @author stonse
  * 
  */
+// 可以重试，就是通过round robin找到的服务器请求失败，可以重新找一个服务器
 public class RetryRule extends AbstractLoadBalancerRule {
 	IRule subRule = new RoundRobinRule();
 	long maxRetryMillis = 500;

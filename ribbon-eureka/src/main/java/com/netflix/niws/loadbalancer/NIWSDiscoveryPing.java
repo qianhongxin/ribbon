@@ -33,6 +33,7 @@ import com.netflix.loadbalancer.Server;
  * @author stonse
  *
  */
+// 与eureka集成使用
 public class NIWSDiscoveryPing extends AbstractLoadBalancerPing {
 	        
 		BaseLoadBalancer lb = null; 

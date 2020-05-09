@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author stonse
  *
  */
+//  不支持负载均衡
 public class NoOpLoadBalancer extends AbstractLoadBalancer {
 
     static final Logger  logger = LoggerFactory.getLogger(NoOpLoadBalancer.class);

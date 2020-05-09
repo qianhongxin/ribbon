@@ -43,6 +43,11 @@ import com.netflix.servo.annotations.Monitor;
  * @author awang
  *
  */
+
+// 这个rule就是会考察服务器的可用性
+//
+//如果3次连接失败，就会等待30秒后再次访问；如果不断失败，那么等待时间会不断边长
+//如果某个服务器的并发请求太高了，那么会绕过去，不再访问
 public class AvailabilityFilteringRule extends PredicateBasedRule {    
 
     private AbstractServerPredicate predicate;

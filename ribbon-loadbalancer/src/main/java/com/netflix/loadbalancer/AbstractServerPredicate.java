@@ -145,7 +145,7 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
      * @param modulo The modulo to bound the value of the counter.
      * @return The next value.
      */
-    // 取模
+    // 取模，和RoundRobinRule的算法一致
     private int incrementAndGetModulo(int modulo) {
         for (;;) {
             int current = nextIndex.get();

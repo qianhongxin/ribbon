@@ -32,6 +32,7 @@ import java.util.List;
  * @author awang
  *
  */
+// 忽略那些连接失败的服务器，然后尽量找并发比较低的服务器来请求
 public class BestAvailableRule extends ClientConfigEnabledRoundRobinRule {
 
     private LoadBalancerStats loadBalancerStats;
@@ -41,6 +42,7 @@ public class BestAvailableRule extends ClientConfigEnabledRoundRobinRule {
         if (loadBalancerStats == null) {
             return super.choose(key);
         }
+        // 拿到所有的server的列表
         List<Server> serverList = getLoadBalancer().getAllServers();
         int minimalConcurrentConnections = Integer.MAX_VALUE;
         long currentTime = System.currentTimeMillis();

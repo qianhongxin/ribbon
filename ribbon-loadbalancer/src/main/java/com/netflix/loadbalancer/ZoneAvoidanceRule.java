@@ -33,6 +33,7 @@ import com.netflix.client.config.IClientConfig;
  * @author awang
  *
  */
+// 根据区域和服气来进行负载均衡，说白了，就是机房的意思
 public class ZoneAvoidanceRule extends PredicateBasedRule {
 
     private static final Random random = new Random();

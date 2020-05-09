@@ -26,6 +26,7 @@ import com.netflix.client.config.IClientConfig;
  * @author stonse
  * 
  */
+// 利用的是RoundRobinRule
 public class ClientConfigEnabledRoundRobinRule extends AbstractLoadBalancerRule {
 
     RoundRobinRule roundRobinRule = new RoundRobinRule();

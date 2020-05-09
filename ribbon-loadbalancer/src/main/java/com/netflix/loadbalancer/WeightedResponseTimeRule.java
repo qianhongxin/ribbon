@@ -67,6 +67,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * will fall back to use {@link RoundRobinRule}. 
  * @author stonse
  */
+// 带着权重的，每个服务器可以有权重，权重越高优先访问，
+// 如果某个服务器响应时间比较长，那么权重就会降低，减少访问
+
+// 后台定时任务DynamicServerWeightTask，会定时重置权重
 public class WeightedResponseTimeRule extends RoundRobinRule {
 
     public static final IClientConfigKey<Integer> WEIGHT_TASK_TIMER_INTERVAL_CONFIG_KEY = new IClientConfigKey<Integer>() {
@@ -239,7 +243,8 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
             if (lb == null) {
                 return;
             }
-            
+
+            // 判断是否有其他线程在处理
             if (!serverWeightAssignmentInProgress.compareAndSet(false,  true))  {
                 return; 
             }
