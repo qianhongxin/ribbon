@@ -67,6 +67,8 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
                 return null;
             }
 
+            // 轮询选择要访问的服务器
+            // 1,2,3   1,2,3   1,2,3
             int nextServerIndex = incrementAndGetModulo(serverCount);
             server = allServers.get(nextServerIndex);
 
