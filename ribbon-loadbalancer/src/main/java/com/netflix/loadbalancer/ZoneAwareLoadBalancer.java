@@ -51,6 +51,7 @@ For each request, the steps above will be repeated. That is to say, each zone re
  * @param <T>
  */
 // 支持多机房级别的负载均衡器
+// 装饰器模式，都是对BasedLoadBalancer的增加
 public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLoadBalancer<T> {
 
     private ConcurrentHashMap<String, BaseLoadBalancer> balancers = new ConcurrentHashMap<String, BaseLoadBalancer>();
@@ -135,9 +136,9 @@ public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLo
                 String zone = ZoneAvoidanceRule.randomChooseZone(zoneSnapshot, availableZones);
                 logger.debug("Zone chosen: {}", zone);
                 if (zone != null) {
-                    // 获取机房zone的BaseLoadBalancer
+                    // 获取机房zone的对应的BaseLoadBalancer
                     BaseLoadBalancer zoneLoadBalancer = getLoadBalancer(zone);
-                    // 选择一个server
+                    // 用zoneLoadBalancer选择一个server
                     server = zoneLoadBalancer.chooseServer(key);
                 }
             }
@@ -155,6 +156,7 @@ public class ZoneAwareLoadBalancer<T extends Server> extends DynamicServerListLo
     @VisibleForTesting
     BaseLoadBalancer getLoadBalancer(String zone) {
         zone = zone.toLowerCase();
+        // balancers中保存了每个机房自己的loadbalancer，每个都是BaseLoadBalancer
         // 选择一个loadBalancer
         BaseLoadBalancer loadBalancer = balancers.get(zone);
         if (loadBalancer == null) {

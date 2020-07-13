@@ -124,6 +124,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         this.name = DEFAULT_NAME;
         this.ping = null;
         setRule(DEFAULT_RULE);
+        // 启动ping任务
         setupPingTask();
         lbStats = new LoadBalancerStats(DEFAULT_NAME);
     }
@@ -152,8 +153,11 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         
         this.name = name;
         this.ping = ping;
+        // 设置ping的策略
         this.pingStrategy = pingStrategy;
+        // 设置负载均衡算法
         setRule(rule);
+        // 启动ping任务
         setupPingTask();
         lbStats = stats;
         init();
@@ -276,6 +280,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         }
     }
 
+    // 启动ping任务
     void setupPingTask() {
         if (canSkipPing()) {
             return;
@@ -901,6 +906,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
      * serially, which may not be desirable, if your <c>IPing</c>
      * implementation is slow, or you have large number of servers.
      */
+    // 单线程串行依次ping每一个server，如果server量越大，ping的越慢，越耗时
     private static class SerialPingStrategy implements IPingStrategy {
 
         @Override
