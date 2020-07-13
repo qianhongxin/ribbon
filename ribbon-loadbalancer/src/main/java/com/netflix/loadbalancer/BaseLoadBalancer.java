@@ -67,16 +67,20 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     private static final String DEFAULT_NAME = "default";
     private static final String PREFIX = "LoadBalancer_";
 
+    // 负载均衡算法，默认用轮询
     protected IRule rule = DEFAULT_RULE;
 
     protected IPingStrategy pingStrategy = DEFAULT_PING_STRATEGY;
 
+    // ping 组件
     protected IPing ping = null;
 
+    // 存储所有的server信息
     @Monitor(name = PREFIX + "AllServerList", type = DataSourceType.INFORMATIONAL)
     protected volatile List<Server> allServerList = Collections
             .synchronizedList(new ArrayList<Server>());
     @Monitor(name = PREFIX + "UpServerList", type = DataSourceType.INFORMATIONAL)
+    // 所有可用的，运行中的server信息
     protected volatile List<Server> upServerList = Collections
             .synchronizedList(new ArrayList<Server>());
 

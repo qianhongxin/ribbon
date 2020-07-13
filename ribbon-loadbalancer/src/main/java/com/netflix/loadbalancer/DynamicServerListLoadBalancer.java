@@ -139,8 +139,9 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
         boolean primeConnection = this.isEnablePrimingConnections();
         // turn this off to avoid duplicated asynchronous priming done in BaseLoadBalancer.setServerList()
         this.setEnablePrimingConnections(false);
+        //开启 server list 获取核更新入口
         enableAndInitLearnNewServersFeature();
-
+        // 手动更新一次server list
         updateListOfServers();
         if (primeConnection && this.getPrimeConnections() != null) {
             this.getPrimeConnections()
@@ -242,6 +243,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
             LOGGER.debug("List of Servers for {} obtained from Discovery client: {}",
                     getIdentifier(), servers);
 
+            // ribbon 支持的特性，支持通过filter过滤掉一些不可以用的server
             if (filter != null) {
                 servers = filter.getFilteredListOfServers(servers);
                 LOGGER.debug("Filtered List of Servers for {} obtained from Discovery client: {}",

@@ -1,2 +1,55 @@
 1. ribbon核心就是三剑客
     ILoadBalancer， IPing， IRule
+
+2. 各个模块介绍
+    ribbon-eureka：提供和eureka client的集成，比如动态获取server list的一些组件
+                   （使用Eureka客户端为云提供动态服务器列表的api（和自己家的eureka天然整合））
+    ribbon-core：ribbon各个其他模块都要依赖的一些公共组件，比如ribbon-transport，ribbon-httpclient需要统一抽象的IClient
+                 来抽象出统一的client；还有请求和响应的封装等（客户端配置api和其他共享api）
+    ribbon-loadbalancer：ribbon本就是做负载均衡的，这个模块提供的是核心的负载均衡相关的类组件（可以独立使用或与其他模块一起使用的负载均衡器api）
+
+    ribbon-evcache：缓存相关集成
+    ribbon：集成了负载平衡、容错、缓存/批处理等功能的api
+    ribbon-guice：ribbon对google的轻量级ioc容器guice的支持
+    ribbon-transport：ribbon对各种非http协议的客户端的封装，比如netty，让其请求支持负载均衡
+                      （使用具有负载平衡功能的RxNetty传输支持HTTP、TCP和UDP协议的客户端）
+    ribbon-httpclient：ribbon对各种http协议的客户端的封装，让http请求支持负载均衡
+                      （REST客户端构建在Apache HttpClient之上，与负载平衡器集成(不支持并被ribbon模块取代)）
+    ribbon-examples：对其他各个模块使用的一些demo介绍，介绍如何使用
+    ribbon-test：对其他各个模块使用的测试
+
+3. 项目状态（各模块状态）
+       Project Status: On Maintenance（维护状态）。说明：维护比停更还是要活跃些的。
+
+       Ribbon由多个组件组成，其中一些组件用于内部生产，另一些组件随着时间的推移被非oss解决方案所取代。这是因为Netflix开始转向面向RPC的更组件化的体系结构，并将重点放在单一职责模块上。因此，此时每个Ribbon组件都得到了不同程度的关注，具体列出如下：
+
+       ribbon-core： deployed at scale in production（在生产中大规模部署）
+       ribbon-loadbalancer：deployed at scale in production
+       ribbon-eureka：deployed at scale in production
+       ribbon：not used
+       ribbon-transport：not used
+       ribbon-evcache：not used
+       ribbon-guice：not used
+       ribbon-httpclient：基本同not used
+       还好的是，它的最核心功能：loadbalancer还是在被大规模使用中的，其它的，无所谓喽。
+
+4. 官方团队有话说：
+       即使对于在生产环境中部署的组件，我们也将它们封装在Netflix内部http客户端中，并且我们不会添加新的功能，因为它们已经稳定了一段时间。任何新功能都已经添加到Ribbon上的内部包装器中(例如请求跟踪和度量)。我们还没有努力使那些组件在Ribbon下与netflix无关。
+
+       认识到这些现实和缺陷，我们将Ribbon设置为维护模式。这意味着如果外部用户提交了一个大的特性请求，我们在内部不会对其进行优先级排序。但是，如果有人要自己完成工作并提交完整的pull requests，我们很乐意进行审查并接受。我们的团队已经开始在gRPC上构建RPC解决方案。我们进行这种转换主要有两个原因:多语言支持和通过请求拦截器实现更好的可扩展性/可组合性。这就是我们目前的计划。
+
+       我们目前定期向gRPC代码库贡献代码。为了帮助我们的团队在生产环境中迁移到基于grpc的解决方案(并对其进行实战测试)，我们还添加了负载平衡和发现拦截器，以实现与Ribbon和Eureka提供的功能相同的功能。拦截器目前是netflix内部的。当我们达到那种信心水平时，我们希望开放这个新方法。我们预计在2016年第三季度之前不会出现这种情况。
+
+       Ribbon和Spring-Cloud-Loadbalancer
+       Ribbon宣布维护状态的时候，Spring Cloud“心急如麻”，想自研一个工程来代替它，这便是Spring-Cloud-Loadbalancer项目，它的官网：https://github.com/spring-cloud-incubator/spring-cloud-loadbalancer
+
+       可以简述Spring-Cloud-Loadbalancer的发展史：
+
+       2017年spring 开始尝试开发新的项目 spring-cloud-loadbalancer 替代ribbon，项目托管在spring-cloud-incubator 孵化器
+       spring cloud alibaba 等顶级的项目大多从此孵化出来的，代表着 spring cloud 的发展方向
+       经过N个月的不维护，还以为spring 放弃此项目的时候，突然把此项目标记成归档迁移到spring-cloud-commons了
+       之后便随着spring-cloud-commons工程的版本号一起发布而发布
+       Spring Cloud Hoxton.RELEASE(2019.12月发布)是第一个包含阻塞式和非阻塞式负载均衡器客户端实现的版本，作为已进入维护模式的Netflix Ribbon的替代方案。
+
+
+参考：https://blog.csdn.net/f641385712/article/details/104761814

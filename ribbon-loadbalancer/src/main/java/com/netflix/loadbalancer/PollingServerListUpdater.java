@@ -24,7 +24,9 @@ public class PollingServerListUpdater implements ServerListUpdater {
 
     private static final Logger logger = LoggerFactory.getLogger(PollingServerListUpdater.class);
 
+    // 初始1s后从eureka拉取注册表到loadbalancer
     private static long LISTOFSERVERS_CACHE_UPDATE_DELAY = 1000; // msecs;
+    // 定时30s从eureka拉取注册表到loadbalancer
     private static int LISTOFSERVERS_CACHE_REPEAT_INTERVAL = 30 * 1000; // msecs;
 
     private static class LazyHolder {
