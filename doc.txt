@@ -53,3 +53,192 @@
 
 
 参考：https://blog.csdn.net/f641385712/article/details/104761814
+
+
+
+笔记：
+1. ribbon的三剑客：ILoadBalancer，IRule，IPing
+
+2. ribbon-httpclient:ribbon 整合了httpclient，包装了下，让其具有负载均衡的效果
+
+   ribbon-loadbalancer：ribbon负载均衡相关的类
+
+   ribbon-transport：ribbon整合传输层，让netty通信具有负载均衡效果
+
+   ribbon-eureka：整合eureka，从eureka获取server列表
+
+   官网解释：
+    ribbon: APIs that integrate load balancing, fault tolerance, caching/batching on top of other ribbon modules and Hystrix
+    ribbon-loadbalancer: Load balancer APIs that can be used independently or with other modules
+    ribbon-eureka: APIs using Eureka client to provide dynamic server list for cloud
+    ribbon-transport: Transport clients that support HTTP, TCP and UDP protocols using RxNetty with load balancing capability
+    ribbon-httpclient: REST client built on top of Apache HttpClient integrated with load balancers (deprecated and being replaced by ribbon module)
+    ribbon-example: Examples
+    ribbon-core: Client configuration APIs and other shared APIs
+
+
+3.
+    1、原生的负载均衡器接口
+
+    ILoadBalancer balancer = new BaseLoadBalancer();
+
+    List<Server> servers = new ArrayList<Server>();
+    servers.add(new Server(“localhost”, 8080));
+    servers.add(new Server(“localhost”, 8088));
+    balancer.addServers(servers);
+
+    for(int i = 0; i < 10; i++) {
+    Server server = balancer.chooseServer(null);
+    System.out.println(server);
+    }
+
+    默认使用round robin轮询策略，直接从服务器列表里轮询
+
+    RestClient内部，底层，就是基于默认的BaseLoadBalancer来选择一个server
+
+    2、自定义负载均衡的规则
+
+    ILoadBalancer负载均衡器，底层是基于IRule，负载均衡算法，规则，来从一堆服务器list中选择一个server出来
+
+    负载均衡器是基于一个IRule接口指定的负载均衡规则，来从服务器列表里获取每次要请求的服务器的，所以可以自定义负载均衡规则
+
+    public class MyRule implements IRule {
+
+    ILoadBalancerr balancer;
+
+    public MyRule() {
+
+    }
+
+    public MyRule(ILoadBalancer balancer) {
+    this.balancer = balancer;
+    }
+
+    public Server choose(Object key) {
+    List<Server> servers = balancer.getAllServers();
+    return servers.get(0);
+    }
+
+    // getter和setter
+
+    }
+
+
+    ILoadBalancer balancer = new BaseLoadBalancer();
+    balancer.setRule(new MyRule(balancer));
+
+    List<Server> servers = new ArrayList<Server>();
+    servers.add(new Server(“localhost”, 8080));
+    servers.add(new Server(“lolcalhost”, 8088));
+    balancer.addServers(servers);
+
+    for(int i = 0; i < 10; i++) {
+    Server server = balancer.chooseServer(null);
+    System.out.println(server);
+    }
+
+    说真的，很少需要自己定制负载均衡算法的，除非是类似hash分发的那种场景，可以自己写个自定义的Rule，比如说，每次都根据某个请求参数，分发到某台机器上去。不过在分布式系统中，尽量减少这种需要hash分发的情况。
+
+    说这个，主要是告诉你，负载均衡的一些底层API罢了，主要是ILoadBalancer和IRule
+
+    但是如果在后面要把这里做的比较复杂的话，很有可能会站在一些内置的Rule的基础之上，吸收他们的源码，自己定制一个复杂的高阶的涵盖很多功能的负载均衡器
+
+    3、ribbon内置负载均衡规则
+
+    RoundRobinRule：系统内置的默认负载均衡规范，直接round robin轮询，从一堆server list中，不断的轮询选择出来一个server，每个server平摊到的这个请求，基本上是平均的
+
+    AvailabilityFilteringRule：这个rule就是会考察服务器的可用性
+
+    如果3次连接失败，就会等待30秒后再次访问；如果不断失败，那么等待时间会不断边长
+    如果某个服务器的并发请求太高了，那么会绕过去，不再访问
+
+    WeightedResponseTimeRule：带着权重的，每个服务器可以有权重，权重越高优先访问，如果某个服务器响应时间比较长，那么权重就会降低，减少访问
+
+    ZoneAvoidanceRule：根据区域和服气来进行负载均衡，说白了，就是机房的意思
+
+    BestAvailableRule：忽略那些连接失败的服务器，然后尽量找并发比较低的服务器来请求
+
+    RandomRule：随机找一个服务器
+
+    RetryRule：可以重试，就是通过round robin找到的服务器请求失败，可以重新找一个服务器
+
+    ribbon主打的就是负载均衡，网络通信，别的一些东西，都是次要，只要是看ribbon提供的各种负载均衡的算法的实现，另外一个是看ribbon + eureka + spring cloud如何整合使用的，看看ribbon源码里面去找比较重要的一些配置的参数
+
+4.
+    负载均衡器里，就是ILoadBalancer里，有IRule负责负载均衡的规则，选择一个服务器；还有一个IPing负责定时ping每个服务器，判断其是否存活
+
+    ILoadBalancer balancer = new BaseLoadBalancer();
+
+    List<Server> servers = new ArrayList<Server>();
+    servers.add(new Server(“localhost”, 8080));
+    servers.add(new Server(“localhost”, 8088));
+    balancer.addServers(servers);
+
+    // http://localhost:8080/
+
+    balancer.setPing(new PingUrl());
+    balancer.setPingInterval(1);
+
+    // 这里就会每隔1秒去请求那两个地址
+
+    Thread.sleep(5000);
+
+    for(int i = 0; i < 10; i++) {
+    Server server = balancer.chooseServer(null);
+    System.out.println(server);
+    }
+
+    不过说实话，这块一般最好稍微做的那啥一点，用个类似/health的接口来表明自己的健康状况，可以自定义一个Ping组件
+
+    pblic class MyPing implements IPing {
+
+    public boolean isAlive(Server server) {
+    return true;
+    }
+
+    }
+
+    ribbon比较重要的几个API
+
+    RestClient
+    ILoadBalancer、IRule、IPing
+
+5. springcloud+eureka+ribbon玩法：
+    大家还记得，要在一个服务里调用另外一个服务的写法吗？
+
+    @LoadBalanced
+    @Bean
+    public RestTemplate getRestTemplate() {
+    return new RestTemplate();
+    }
+
+    说白了，就是用一个RestTemplate来访问别的服务，RestTemplate本身很简单，就是一个http请求的组件，本身没什么负载均衡的功能，他就是指定一个url，就访问这个url就得了。但是这里用@LoadBalanced注解之后，默认底层就会用ribbon实现负载均衡了。
+
+    大家用屁股想想，很简单的道理，这里肯定是RestTemplate底层会去基于ribbon来对一个服务的service list进行负载均衡式的访问。那service list是从哪儿拿到的？ribbon和eureka整合起来使用了，在这个ribbon里，肯定server list是从eureka client里拿到的，对吧，人家本地不是缓存了完整的注册表么？
+
+    然后呢，请求一个服务的时候，就找那个服务对应的server list，round robin轮询一下
+
+    这里可以画个图来大家理解一下
+
+    这块大概的原理我们先理解一下，后面可以看看源码
+
+    如果要对ribbon装配自己的负载均衡规则和ping规则，就可以这样来搞：
+
+    public class MyConfiguration {
+
+    @Bean
+    public IRule getRule() {
+    return new MyRule();
+    }
+
+    @Bean
+    public IPing getPing() {
+    return new MyPing();
+    }
+
+    }
+
+    @RibbonClient(name = “ServiceB”, configuration = MyConfiguration.class)
+    public class ServiceBConfiguration {
+
+    }
