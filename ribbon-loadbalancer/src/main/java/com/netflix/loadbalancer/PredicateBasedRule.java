@@ -27,6 +27,7 @@ import com.google.common.base.Optional;
  * @author awang
  *
  */
+// 支持过滤器过滤server列表，在剩下的列表中选择
 public abstract class PredicateBasedRule extends ClientConfigEnabledRoundRobinRule {
    
     /**
