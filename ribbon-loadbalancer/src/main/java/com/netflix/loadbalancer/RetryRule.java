@@ -26,7 +26,8 @@ import com.netflix.client.config.IClientConfig;
  * @author stonse
  * 
  */
-// 可以重试，就是通过round robin找到的服务器请求失败，可以重新找一个服务器
+// 可以在指定时间内重试找到一个server，底层是通过round robin找到一个server，如果找不到，就
+// 重试继续，直到找到一个可用的server，如果超过时间找不到也就返回
 public class RetryRule extends AbstractLoadBalancerRule {
 	IRule subRule = new RoundRobinRule();
 	long maxRetryMillis = 500;
