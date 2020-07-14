@@ -107,9 +107,16 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
      * @return The next value.
      */
     private int incrementAndGetModulo(int modulo) {
+        // 自旋
         for (;;) {
+            // 获取当前已调用数量
             int current = nextServerCyclicCounter.get();
+            // 将调用数加1，和server数量取模
             int next = (current + 1) % modulo;
+            // 通过cas设置nextServerCyclicCounter值，成功返回，否则继续下一次循环操作
+            // 这个算法是轮询访问服务器，即1,2,3  1,2,3的来，想要达到这个效果，这里需要用cas操作确保
+            // 并发访问这个方法的所有线程同一时刻同一server只能被一个线程获取，所有的server是依次被访问的
+            // 所以这里不能用nextServerCyclicCounter.getAndIncrement(),达不到轮询效果
             if (nextServerCyclicCounter.compareAndSet(current, next))
                 return next;
         }
