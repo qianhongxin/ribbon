@@ -90,6 +90,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     protected String name = DEFAULT_NAME;
 
     protected Timer lbTimer = null;
+    // ping 任务的调度时间，默认是30s，构造函数中传进来的，这里写的初始化10s
     protected int pingIntervalSeconds = 10;
     protected int maxTotalPingTimeSeconds = 5;
     protected Comparator<Server> serverComparator = new ServerComparator();
@@ -179,6 +180,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         this.config = clientConfig;
         String clientName = clientConfig.getClientName();
         this.name = clientName;
+        // ping任务的调度时间，默认配置30s
         int pingIntervalTime = Integer.parseInt(""
                 + clientConfig.getProperty(
                         CommonClientConfigKey.NFLoadBalancerPingInterval,
